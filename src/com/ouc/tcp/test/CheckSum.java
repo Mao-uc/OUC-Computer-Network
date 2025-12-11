@@ -5,7 +5,7 @@ import com.ouc.tcp.message.TCP_PACKET;
 
 public class CheckSum {
 	
-	/*计算TCP报文段校验和：只需校验TCP首部中的seq、ack和sum，以及TCP数据字段*/
+	/* Calculate the TCP packet checksum: only validate seq, ack, and sum in the TCP header, as well as the TCP data field */
 	public static short computeChkSum(TCP_PACKET tcpPack) {
 		long checkSum = 0;
 		TCP_HEADER Htmp = tcpPack.getTcpH();
