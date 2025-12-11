@@ -4,10 +4,7 @@
 package com.ouc.tcp.test;
 
 import com.ouc.tcp.client.TCP_Sender_ADT;
-import com.ouc.tcp.client.UDT_RetransTask;
-import com.ouc.tcp.client.UDT_Timer;
-import com.ouc.tcp.message.*;
-import com.ouc.tcp.tool.TCP_TOOL;
+import com.ouc.tcp.message.TCP_PACKET;
 
 public class TCP_Sender extends TCP_Sender_ADT {
 	
@@ -54,19 +51,21 @@ public class TCP_Sender extends TCP_Sender_ADT {
 	@Override
 	//需要修改
 	public void waitACK() {
-		//循环检查ackQueue
-		//循环检查确认号对列中是否有新收到的ACK		
-		if(!ackQueue.isEmpty()){
-			int currentAck=ackQueue.poll();
-			// System.out.println("CurrentAck: "+currentAck);
-			if (currentAck == tcpPack.getTcpH().getTh_seq()){
-				System.out.println("Clear: "+tcpPack.getTcpH().getTh_seq());
-				flag = 1;
-				//break;
-			}else{
-				System.out.println("Retransmit: "+tcpPack.getTcpH().getTh_seq());
-				udt_send(tcpPack);
-				flag = 0;
+		// 循环检查ackQueue
+		// 循环检查确认号对列中是否有新收到的ACK
+		while (flag == 0) {
+			if (!ackQueue.isEmpty()) {
+				int currentAck = ackQueue.poll();
+				// System.out.println("CurrentAck: "+currentAck);
+				if (currentAck == tcpPack.getTcpH().getTh_seq()) {
+					System.out.println("Clear: " + tcpPack.getTcpH().getTh_seq());
+					flag = 1;
+					// break;
+				} else {
+					System.out.println("Retransmit: " + tcpPack.getTcpH().getTh_seq());
+					udt_send(tcpPack);
+					flag = 0;
+				}
 			}
 		}
 	}
