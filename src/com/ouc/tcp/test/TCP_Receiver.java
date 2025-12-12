@@ -15,7 +15,8 @@ public class TCP_Receiver extends TCP_Receiver_ADT {
 	private TCP_PACKET ackPack; // ACK packet to be replied
 	int sequence = 1;// Used to record the sequence number of the current packet to be received, note
 						// that the packet sequence number is not completely
-
+	int lastack = -1;
+	
 	/* Constructor */
 	public TCP_Receiver() {
 		super(); // Call superclass constructor
@@ -27,29 +28,31 @@ public class TCP_Receiver extends TCP_Receiver_ADT {
 	public void rdt_recv(TCP_PACKET recvPack) {
 		// Check checksum, generate ACK
 		if (CheckSum.computeChkSum(recvPack) == recvPack.getTcpH().getTh_sum()) {
+
+			int sequence_cur = recvPack.getTcpH().getTh_seq();
+			
 			// Generate ACK packet (set acknowledgment number)
-			tcpH.setTh_ack(recvPack.getTcpH().getTh_seq());
+			tcpH.setTh_ack(sequence_cur);
 			ackPack = new TCP_PACKET(tcpH, tcpS, recvPack.getSourceAddr());
 			tcpH.setTh_sum(CheckSum.computeChkSum(ackPack));
 			// Reply ACK packet
 			reply(ackPack);
-
-			int sequence_cur = recvPack.getTcpH().getTh_seq();
-
+			
 			if (sequence_cur == sequence) {
 				// Insert the correctly received and ordered data into the data queue, ready for
 				// delivery
 				dataQueue.add(recvPack.getTcpS().getData());
+				lastack = sequence;
 				sequence += recvPack.getTcpS().getData().length;
 			} else {
-				System.out.println("Duplicate packet, Seq =" + recvPack.getTcpH().getTh_seq());
+				System.out.println("Duplicate packet, Seq =" + sequence_cur);
 			}
 		} else {
 			System.out.println("Recieve Computed: " + CheckSum.computeChkSum(recvPack));
 			System.out.println("Recieved Packet" + recvPack.getTcpH().getTh_sum());
 			System.out
 					.println("Problem: Packet Number: " + recvPack.getTcpH().getTh_seq() + " + InnerSeq:  " + sequence);
-			tcpH.setTh_ack(-1);
+			tcpH.setTh_ack(lastack);
 			ackPack = new TCP_PACKET(tcpH, tcpS, recvPack.getSourceAddr());
 			tcpH.setTh_sum(CheckSum.computeChkSum(ackPack));
 			// Reply ACK packet
@@ -95,7 +98,7 @@ public class TCP_Receiver extends TCP_Receiver_ADT {
 	// Reply ACK packet
 	public void reply(TCP_PACKET replyPack) {
 		// Set error control flag
-		tcpH.setTh_eflag((byte) 0); // eFlag=0, channel has no error
+		tcpH.setTh_eflag((byte) 1); // eFlag=0, channel has no error
 
 		// Send packet
 		client.send(replyPack);

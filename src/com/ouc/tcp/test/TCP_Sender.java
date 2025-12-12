@@ -77,13 +77,15 @@ public class TCP_Sender extends TCP_Sender_ADT {
 	// Receive ACK packet: check checksum, insert confirmation number into ack
 	// queue; NACK confirmation number is -1; no modification needed
 	public void recv(TCP_PACKET recvPack) {
-		System.out.println("Receive ACK Number： " + recvPack.getTcpH().getTh_ack());
-		ackQueue.add(recvPack.getTcpH().getTh_ack());
-		System.out.println();
-
-		// Process ACK packet
-		// waitACK();
-
+		
+		if(CheckSum.computeChkSum(recvPack)==recvPack.getTcpH().getTh_sum()) {
+			System.out.println("Receive ACK Number： " + recvPack.getTcpH().getTh_ack());			
+			ackQueue.add(recvPack.getTcpH().getTh_ack());
+			System.out.println();			
+		}else {
+			System.out.println("Receive error ACK");
+			ackQueue.add(-1);
+			System.out.println();
+		}
 	}
-
 }
