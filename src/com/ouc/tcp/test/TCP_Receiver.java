@@ -8,74 +8,81 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import com.ouc.tcp.client.TCP_Receiver_ADT;
-import com.ouc.tcp.message.*;
-import com.ouc.tcp.tool.TCP_TOOL;
+import com.ouc.tcp.message.TCP_PACKET;
 
 public class TCP_Receiver extends TCP_Receiver_ADT {
-	
-	private TCP_PACKET ackPack;	//回复的ACK报文段
-	int sequence=1;//用于记录当前待接收的包序号，注意包序号不完全是
-		
-	/*构造函数*/
+
+	private TCP_PACKET ackPack; // ACK packet to be replied
+	int sequence = 1;// Used to record the sequence number of the current packet to be received, note
+						// that the packet sequence number is not completely
+
+	/* Constructor */
 	public TCP_Receiver() {
-		super();	//调用超类构造函数
-		super.initTCP_Receiver(this);	//初始化TCP接收端
+		super(); // Call superclass constructor
+		super.initTCP_Receiver(this); // Initialize TCP receiver
 	}
 
 	@Override
-	//接收到数据报：检查校验和，设置回复的ACK报文段
+	// Packet received: check checksum, set ACK packet to reply
 	public void rdt_recv(TCP_PACKET recvPack) {
-		//检查校验码，生成ACK
-		if(CheckSum.computeChkSum(recvPack) == recvPack.getTcpH().getTh_sum()) {
-			//生成ACK报文段（设置确认号）
+		// Check checksum, generate ACK
+		if (CheckSum.computeChkSum(recvPack) == recvPack.getTcpH().getTh_sum()) {
+			// Generate ACK packet (set acknowledgment number)
 			tcpH.setTh_ack(recvPack.getTcpH().getTh_seq());
 			ackPack = new TCP_PACKET(tcpH, tcpS, recvPack.getSourceAddr());
 			tcpH.setTh_sum(CheckSum.computeChkSum(ackPack));
-			//回复ACK报文段
-			reply(ackPack);			
-			
-			//将接收到的正确有序的数据插入data队列，准备交付
-			dataQueue.add(recvPack.getTcpS().getData());				
-			sequence++;
-		}else{
-			System.out.println("Recieve Computed: "+CheckSum.computeChkSum(recvPack));
-			System.out.println("Recieved Packet"+recvPack.getTcpH().getTh_sum());
-			System.out.println("Problem: Packet Number: "+recvPack.getTcpH().getTh_seq()+" + InnerSeq:  "+sequence);
+			// Reply ACK packet
+			reply(ackPack);
+
+			int sequence_cur = recvPack.getTcpH().getTh_seq();
+
+			if (sequence_cur == sequence) {
+				// Insert the correctly received and ordered data into the data queue, ready for
+				// delivery
+				dataQueue.add(recvPack.getTcpS().getData());
+				sequence += recvPack.getTcpS().getData().length;
+			} else {
+				System.out.println("Duplicate packet, Seq =" + recvPack.getTcpH().getTh_seq());
+			}
+		} else {
+			System.out.println("Recieve Computed: " + CheckSum.computeChkSum(recvPack));
+			System.out.println("Recieved Packet" + recvPack.getTcpH().getTh_sum());
+			System.out
+					.println("Problem: Packet Number: " + recvPack.getTcpH().getTh_seq() + " + InnerSeq:  " + sequence);
 			tcpH.setTh_ack(-1);
 			ackPack = new TCP_PACKET(tcpH, tcpS, recvPack.getSourceAddr());
 			tcpH.setTh_sum(CheckSum.computeChkSum(ackPack));
-			//回复ACK报文段
+			// Reply ACK packet
 			reply(ackPack);
 		}
-		
+
 		System.out.println();
-		
-		
-		//交付数据（每20组数据交付一次）
-		if(dataQueue.size() == 20) 
-			deliver_data();	
+
+		// Deliver data (deliver every 20 groups of data)
+		if (dataQueue.size() == 20)
+			deliver_data();
 	}
 
 	@Override
-	//交付数据（将数据写入文件）；不需要修改
+	// Deliver data (write data to file); no modification needed
 	public void deliver_data() {
-		//检查dataQueue，将数据写入文件
+		// Check dataQueue, write data to file
 		File fw = new File("recvData.txt");
 		BufferedWriter writer;
-		
+
 		try {
 			writer = new BufferedWriter(new FileWriter(fw, true));
-			
-			//循环检查data队列中是否有新交付数据
-			while(!dataQueue.isEmpty()) {
+
+			// Loop to check if there is new data to be delivered in the data queue
+			while (!dataQueue.isEmpty()) {
 				int[] data = dataQueue.poll();
-				
-				//将数据写入文件
-				for(int i = 0; i < data.length; i++) {
+
+				// Write data to file
+				for (int i = 0; i < data.length; i++) {
 					writer.write(data[i] + "\n");
 				}
-				
-				writer.flush();		//清空输出缓存
+
+				writer.flush(); // Clear output buffer
 			}
 			writer.close();
 		} catch (IOException e) {
@@ -85,13 +92,13 @@ public class TCP_Receiver extends TCP_Receiver_ADT {
 	}
 
 	@Override
-	//回复ACK报文段
+	// Reply ACK packet
 	public void reply(TCP_PACKET replyPack) {
-		//设置错误控制标志
-		tcpH.setTh_eflag((byte)1);	//eFlag=0，信道无错误
-				
-		//发送数据报
+		// Set error control flag
+		tcpH.setTh_eflag((byte) 1); // eFlag=0, channel has no error
+
+		// Send packet
 		client.send(replyPack);
 	}
-	
+
 }
