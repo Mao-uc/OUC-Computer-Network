@@ -4,13 +4,16 @@
 package com.ouc.tcp.test;
 
 import com.ouc.tcp.client.TCP_Sender_ADT;
+import com.ouc.tcp.client.UDT_RetransTask;
+import com.ouc.tcp.client.UDT_Timer;
 import com.ouc.tcp.message.TCP_PACKET;
 
 public class TCP_Sender extends TCP_Sender_ADT {
 
 	private TCP_PACKET tcpPack; // TCP packet to be sent
 	private volatile int flag = 0;
-
+	UDT_Timer udt_timer;
+	
 	/* Constructor */
 	public TCP_Sender() {
 		super(); // Call superclass constructor
@@ -33,11 +36,13 @@ public class TCP_Sender extends TCP_Sender_ADT {
 
 		// Send TCP packet
 		udt_send(tcpPack);
+		udt_timer = new UDT_Timer();
+		udt_timer.schedule(new UDT_RetransTask(client, tcpPack), 3000, 3000);
+		
+		
 		flag = 0;
 
-		// Wait for ACK packet
 		waitACK();
-		// while (flag == 0);
 	}
 
 	@Override
@@ -45,25 +50,23 @@ public class TCP_Sender extends TCP_Sender_ADT {
 	// channel; only need to modify error flag
 	public void udt_send(TCP_PACKET stcpPack) {
 		// Set error control flag
-		tcpH.setTh_eflag((byte) 1);
+		tcpH.setTh_eflag((byte) 4);
 		// System.out.println("to send: "+stcpPack.getTcpH().getTh_seq());
 		// Send packet
 		client.send(stcpPack);
 	}
 
 	@Override
-	// Needs modification
+	// Loop check ackQueue
+	// Loop check confirmation number queue for newly received ACK
 	public void waitACK() {
-		// Loop check ackQueue
-		// Loop check confirmation number queue for newly received ACK
 		while (flag == 0) {
 			if (!ackQueue.isEmpty()) {
 				int currentAck = ackQueue.poll();
-				// System.out.println("CurrentAck: "+currentAck);
 				if (currentAck == tcpPack.getTcpH().getTh_seq()) {
 					System.out.println("Clear: " + tcpPack.getTcpH().getTh_seq());
 					flag = 1;
-					// break;
+					udt_timer.cancel();
 				} else {
 					System.out.println("Retransmit: " + tcpPack.getTcpH().getTh_seq());
 					udt_send(tcpPack);

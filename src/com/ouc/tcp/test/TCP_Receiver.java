@@ -98,7 +98,7 @@ public class TCP_Receiver extends TCP_Receiver_ADT {
 	// Reply ACK packet
 	public void reply(TCP_PACKET replyPack) {
 		// Set error control flag
-		tcpH.setTh_eflag((byte) 1); // eFlag=0, channel has no error
+		tcpH.setTh_eflag((byte) 4); // eFlag=0, channel has no error
 
 		// Send packet
 		client.send(replyPack);
