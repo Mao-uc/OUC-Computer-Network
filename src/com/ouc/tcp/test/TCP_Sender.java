@@ -3,17 +3,24 @@
 
 package com.ouc.tcp.test;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.ouc.tcp.client.TCP_Sender_ADT;
-import com.ouc.tcp.client.UDT_RetransTask;
 import com.ouc.tcp.client.UDT_Timer;
+import com.ouc.tcp.message.TCP_HEADER;
 import com.ouc.tcp.message.TCP_PACKET;
+import com.ouc.tcp.message.TCP_SEGMENT;
 
 public class TCP_Sender extends TCP_Sender_ADT {
 
 	private TCP_PACKET tcpPack; // TCP packet to be sent
-	private volatile int flag = 0;
-	UDT_Timer udt_timer;
-	
+
+	// GBN needed
+	private UDT_Timer udt_timer;
+	private int windowSize = 4;
+	private List<TCP_PACKET> unAckedPackets = new ArrayList<TCP_PACKET>();
+
 	/* Constructor */
 	public TCP_Sender() {
 		super(); // Call superclass constructor
@@ -25,24 +32,31 @@ public class TCP_Sender extends TCP_Sender_ADT {
 	// generate TCP packet; needs modification
 	public void rdt_send(int dataIndex, int[] appData) {
 
-		// Generate TCP packet (set sequence number and data field/checksum), pay
-		// attention to packing order
-		tcpH.setTh_seq(dataIndex * appData.length + 1);// Set packet sequence number as byte stream number:
-		tcpS.setData(appData);
-		tcpPack = new TCP_PACKET(tcpH, tcpS, destinAddr);
+		// wait for spare window
+		while (unAckedPackets.size() >= windowSize);
 
-		tcpH.setTh_sum(CheckSum.computeChkSum(tcpPack));
-		tcpPack.setTcpH(tcpH);
+		try {
+			TCP_HEADER newTcpH = tcpH.clone();
+			newTcpH.setTh_seq(dataIndex * appData.length + 1);
 
-		// Send TCP packet
-		udt_send(tcpPack);
-		udt_timer = new UDT_Timer();
-		udt_timer.schedule(new UDT_RetransTask(client, tcpPack), 3000, 3000);
-		
-		
-		flag = 0;
+			TCP_SEGMENT newTcpS = tcpS.clone();
+			newTcpS.setData(appData);
+			tcpPack = new TCP_PACKET(newTcpH, newTcpS, destinAddr);
 
-		waitACK();
+			newTcpH.setTh_sum(CheckSum.computeChkSum(tcpPack));
+			tcpPack.setTcpH(newTcpH);
+
+			unAckedPackets.add(tcpPack);
+			udt_send(tcpPack);
+
+			// Sender has one timer for the oldest unackedpacket
+			if (unAckedPackets.size() == 1) {
+				udt_timer = new UDT_Timer();
+				udt_timer.schedule(new TaskPacketsRetrans(client, unAckedPackets), 3000, 3000);
+			}
+		} catch (CloneNotSupportedException e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override
@@ -60,35 +74,37 @@ public class TCP_Sender extends TCP_Sender_ADT {
 	// Loop check ackQueue
 	// Loop check confirmation number queue for newly received ACK
 	public void waitACK() {
-		while (flag == 0) {
-			if (!ackQueue.isEmpty()) {
-				int currentAck = ackQueue.poll();
-				if (currentAck == tcpPack.getTcpH().getTh_seq()) {
-					System.out.println("Clear: " + tcpPack.getTcpH().getTh_seq());
-					flag = 1;
-					udt_timer.cancel();
-				} else {
-					System.out.println("Retransmit: " + tcpPack.getTcpH().getTh_seq());
-					udt_send(tcpPack);
-					flag = 0;
-				}
-			}
-		}
+
 	}
 
 	@Override
 	// Receive ACK packet: check checksum, insert confirmation number into ack
 	// queue; NACK confirmation number is -1; no modification needed
 	public void recv(TCP_PACKET recvPack) {
-		
-		if(CheckSum.computeChkSum(recvPack)==recvPack.getTcpH().getTh_sum()) {
-			System.out.println("Receive ACK Number： " + recvPack.getTcpH().getTh_ack());			
-			ackQueue.add(recvPack.getTcpH().getTh_ack());
-			System.out.println();			
-		}else {
-			System.out.println("Receive error ACK");
-			ackQueue.add(-1);
-			System.out.println();
+
+		// rdt_rcv(rcvpkt) && notcorrupt(rcvpkt)
+		if (CheckSum.computeChkSum(recvPack) == recvPack.getTcpH().getTh_sum()) {
+
+			int ack = recvPack.getTcpH().getTh_ack();
+
+			System.out.println("Receive ACK Number： " + ack);
+
+			boolean isAckNew = false;
+
+			while ((!unAckedPackets.isEmpty()) && unAckedPackets.get(0).getTcpH().getTh_seq() <= ack) {
+				unAckedPackets.remove(0);
+				isAckNew = true;
+			}
+
+			if (isAckNew) {
+				udt_timer.cancel();
+				if (!unAckedPackets.isEmpty()) {
+					udt_timer = new UDT_Timer();
+					udt_timer.schedule(new TaskPacketsRetrans(client, unAckedPackets), 3000, 3000);
+				} else {
+					udt_timer = new UDT_Timer();
+				}
+			}
 		}
 	}
 }
