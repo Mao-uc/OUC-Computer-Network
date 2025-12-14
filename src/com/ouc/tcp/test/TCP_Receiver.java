@@ -6,6 +6,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.concurrent.ConcurrentSkipListMap;
 
 import com.ouc.tcp.client.TCP_Receiver_ADT;
 import com.ouc.tcp.message.TCP_PACKET;
@@ -13,10 +14,9 @@ import com.ouc.tcp.message.TCP_PACKET;
 public class TCP_Receiver extends TCP_Receiver_ADT {
 
 	private TCP_PACKET ackPack; // ACK packet to be replied
-	int sequence = 1;// Used to record the sequence number of the current packet to be received, note
-						// that the packet sequence number is not completely
-	int lastack = -1;
-	
+	int sequence = 1; // expected sequence
+	private ConcurrentSkipListMap<Integer, int[]> dataBuffer = new ConcurrentSkipListMap<Integer, int[]>();
+
 	/* Constructor */
 	public TCP_Receiver() {
 		super(); // Call superclass constructor
@@ -26,43 +26,33 @@ public class TCP_Receiver extends TCP_Receiver_ADT {
 	@Override
 	// Packet received: check checksum, set ACK packet to reply
 	public void rdt_recv(TCP_PACKET recvPack) {
-		// Check checksum, generate ACK
 		if (CheckSum.computeChkSum(recvPack) == recvPack.getTcpH().getTh_sum()) {
 
 			int sequence_cur = recvPack.getTcpH().getTh_seq();
-			
-			// Generate ACK packet (set acknowledgment number)
+
 			tcpH.setTh_ack(sequence_cur);
 			ackPack = new TCP_PACKET(tcpH, tcpS, recvPack.getSourceAddr());
 			tcpH.setTh_sum(CheckSum.computeChkSum(ackPack));
-			// Reply ACK packet
 			reply(ackPack);
-			
+
 			if (sequence_cur == sequence) {
-				// Insert the correctly received and ordered data into the data queue, ready for
-				// delivery
 				dataQueue.add(recvPack.getTcpS().getData());
-				lastack = sequence;
+				// expected sequence ++
 				sequence += recvPack.getTcpS().getData().length;
-			} else {
-				System.out.println("Duplicate packet, Seq =" + sequence_cur);
+
+				while (dataBuffer.containsKey(sequence)) {
+					int[] data_cur = dataBuffer.get(sequence);
+					dataQueue.add(data_cur);
+					dataBuffer.remove(sequence);
+					sequence += data_cur.length;
+				}
+			} else if ((sequence_cur > sequence) && (!dataBuffer.containsKey(sequence_cur))) {
+				dataBuffer.put(sequence_cur, recvPack.getTcpS().getData());
 			}
-		} else {
-			System.out.println("Recieve Computed: " + CheckSum.computeChkSum(recvPack));
-			System.out.println("Recieved Packet" + recvPack.getTcpH().getTh_sum());
-			System.out
-					.println("Problem: Packet Number: " + recvPack.getTcpH().getTh_seq() + " + InnerSeq:  " + sequence);
-			tcpH.setTh_ack(lastack);
-			ackPack = new TCP_PACKET(tcpH, tcpS, recvPack.getSourceAddr());
-			tcpH.setTh_sum(CheckSum.computeChkSum(ackPack));
-			// Reply ACK packet
-			reply(ackPack);
 		}
 
-		System.out.println();
-
 		// Deliver data (deliver every 20 groups of data)
-		if (dataQueue.size() == 20)
+		if (dataQueue.size() >= 1)
 			deliver_data();
 	}
 
