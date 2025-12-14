@@ -17,7 +17,7 @@ public class TCP_Sender extends TCP_Sender_ADT {
 
 	private TCP_PACKET tcpPack; // TCP packet to be sent
 
-	// GBN needed
+	// SR needed
 	private UDT_Timer udt_timer;
 	private int windowSize = 4;
 	private ConcurrentSkipListMap<Integer, TCP_PACKET> unAckedPackets = new ConcurrentSkipListMap<Integer, TCP_PACKET>();
@@ -31,7 +31,7 @@ public class TCP_Sender extends TCP_Sender_ADT {
 
 	@Override
 	// Reliable sending (called by application layer): encapsulate application data,
-	// generate TCP packet; needs modification
+	// generate TCP packet
 	public void rdt_send(int dataIndex, int[] appData) {
 
 		// wait for spare window
@@ -66,7 +66,7 @@ public class TCP_Sender extends TCP_Sender_ADT {
 	public void udt_send(TCP_PACKET stcpPack) {
 		// Set error control flag
 		tcpH.setTh_eflag((byte) 7);
-		// System.out.println("to send: "+stcpPack.getTcpH().getTh_seq());
+
 		// Send packet
 		client.send(stcpPack);
 	}
