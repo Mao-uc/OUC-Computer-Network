@@ -17,7 +17,7 @@ public class TCP_Sender extends TCP_Sender_ADT {
 
 	private TCP_PACKET tcpPack; // TCP packet to be sent
 
-	// GBN needed
+	// SR needed
 	private UDT_Timer udt_timer;
 	private int windowSize = 4;
 	private ConcurrentSkipListMap<Integer, TCP_PACKET> unAckedPackets = new ConcurrentSkipListMap<Integer, TCP_PACKET>();
