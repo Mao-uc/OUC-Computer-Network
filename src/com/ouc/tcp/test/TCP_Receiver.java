@@ -51,7 +51,7 @@ public class TCP_Receiver extends TCP_Receiver_ADT {
 			}
 		}
 
-		// Deliver data (deliver every 20 groups of data)
+		// Deliver data
 		if (dataQueue.size() >= 1)
 			deliver_data();
 	}
