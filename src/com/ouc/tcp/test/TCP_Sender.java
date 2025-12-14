@@ -67,10 +67,10 @@ public class TCP_Sender extends TCP_Sender_ADT {
 					System.out.println("Clear: " + tcpPack.getTcpH().getTh_seq());
 					flag = 1;
 					udt_timer.cancel();
-				} else {
-					System.out.println("Retransmit: " + tcpPack.getTcpH().getTh_seq());
-					udt_send(tcpPack);
-					flag = 0;
+//				} else {
+//					System.out.println("Retransmit: " + tcpPack.getTcpH().getTh_seq());
+//					udt_send(tcpPack);
+//					flag = 0;
 				}
 			}
 		}
@@ -85,10 +85,10 @@ public class TCP_Sender extends TCP_Sender_ADT {
 			System.out.println("Receive ACK Number： " + recvPack.getTcpH().getTh_ack());			
 			ackQueue.add(recvPack.getTcpH().getTh_ack());
 			System.out.println();			
-//		}else {
-//			System.out.println("Receive error ACK");
-//			ackQueue.add(-1);
-//			System.out.println();
+		}else {
+			System.out.println("Receive error ACK");
+			ackQueue.add(-1);
+			System.out.println();
 		}
 	}
 }
