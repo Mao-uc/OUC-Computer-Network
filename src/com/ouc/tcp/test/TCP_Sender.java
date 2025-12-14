@@ -64,7 +64,7 @@ public class TCP_Sender extends TCP_Sender_ADT {
 	// channel; only need to modify error flag
 	public void udt_send(TCP_PACKET stcpPack) {
 		// Set error control flag
-		tcpH.setTh_eflag((byte) 4);
+		tcpH.setTh_eflag((byte) 7);
 		// System.out.println("to send: "+stcpPack.getTcpH().getTh_seq());
 		// Send packet
 		client.send(stcpPack);

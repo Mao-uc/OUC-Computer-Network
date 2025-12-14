@@ -25,7 +25,6 @@ public class TCP_Receiver extends TCP_Receiver_ADT {
 	@Override
 	// Packet received: check checksum, set ACK packet to reply
 	public void rdt_recv(TCP_PACKET recvPack) {
-		// 
 		if (CheckSum.computeChkSum(recvPack) == recvPack.getTcpH().getTh_sum()) {
 
 			int sequence_cur = recvPack.getTcpH().getTh_seq();
@@ -97,7 +96,7 @@ public class TCP_Receiver extends TCP_Receiver_ADT {
 	// Reply ACK packet
 	public void reply(TCP_PACKET replyPack) {
 		// Set error control flag
-		tcpH.setTh_eflag((byte) 4); // eFlag=0, channel has no error
+		tcpH.setTh_eflag((byte) 7); // eFlag=0, channel has no error
 
 		// Send packet
 		client.send(replyPack);
