@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.ouc.tcp.client.TCP_Sender_ADT;
+import com.ouc.tcp.client.UDT_RetransTask;
 import com.ouc.tcp.client.UDT_Timer;
 import com.ouc.tcp.message.TCP_HEADER;
 import com.ouc.tcp.message.TCP_PACKET;
@@ -50,9 +51,9 @@ public class TCP_Sender extends TCP_Sender_ADT {
 			udt_send(tcpPack);
 
 			// Sender has one timer for the oldest unackedpacket
-			if (unAckedPackets.size() == 1) {
+			if(udt_timer==null) {
 				udt_timer = new UDT_Timer();
-				udt_timer.schedule(new TaskPacketsRetrans(client, unAckedPackets), 3000, 3000);
+				udt_timer.schedule(new UDT_RetransTask(client, tcpPack), 3000, 3000);
 			}
 		} catch (CloneNotSupportedException e) {
 			e.printStackTrace();
@@ -100,7 +101,7 @@ public class TCP_Sender extends TCP_Sender_ADT {
 					udt_timer = new UDT_Timer();
 					udt_timer.schedule(new TaskPacketsRetrans(client, unAckedPackets), 3000, 3000);
 				} else {
-					udt_timer = new UDT_Timer();
+					udt_timer = null;
 				}
 			}
 		}
