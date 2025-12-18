@@ -79,8 +79,6 @@ public class TCP_Sender extends TCP_Sender_ADT {
 	}
 
 	@Override
-	// Receive ACK packet: check checksum, insert confirmation number into ack
-	// queue; NACK confirmation number is -1; no modification needed
 	public void recv(TCP_PACKET recvPack) {
 
 		// rdt_rcv(rcvpkt) && notcorrupt(rcvpkt)
