@@ -17,11 +17,11 @@ public class TCP_Sender extends TCP_Sender_ADT {
 
 	private TCP_PACKET tcpPack; // TCP packet to be sent
 
-	// SR needed
+	// TCP needed
 	private UDT_Timer udt_timer;
 	private int windowSize = 4;
 	private ConcurrentSkipListMap<Integer, TCP_PACKET> unAckedPackets = new ConcurrentSkipListMap<Integer, TCP_PACKET>();
-	private ConcurrentSkipListMap<Integer, UDT_Timer> timers = new ConcurrentSkipListMap<Integer, UDT_Timer>();
+	//private ConcurrentSkipListMap<Integer, UDT_Timer> timers = new ConcurrentSkipListMap<Integer, UDT_Timer>();
 	
 	/* Constructor */
 	public TCP_Sender() {
@@ -51,9 +51,10 @@ public class TCP_Sender extends TCP_Sender_ADT {
 			unAckedPackets.put(newTcpH.getTh_seq(),tcpPack);
 			udt_send(tcpPack);
 
-			udt_timer = new UDT_Timer();
-			udt_timer.schedule(new UDT_RetransTask(client, tcpPack), 3000, 3000);
-			timers.put(newTcpH.getTh_seq(), udt_timer);	
+			if(udt_timer==null) {
+				udt_timer = new UDT_Timer();
+				udt_timer.schedule(new UDT_RetransTask(client, tcpPack), 3000, 3000);
+			}
 
 		} catch (CloneNotSupportedException e) {
 			e.printStackTrace();
@@ -79,8 +80,6 @@ public class TCP_Sender extends TCP_Sender_ADT {
 	}
 
 	@Override
-	// Receive ACK packet: check checksum, insert confirmation number into ack
-	// queue; NACK confirmation number is -1; no modification needed
 	public void recv(TCP_PACKET recvPack) {
 
 		// rdt_rcv(rcvpkt) && notcorrupt(rcvpkt)
@@ -90,18 +89,22 @@ public class TCP_Sender extends TCP_Sender_ADT {
 
 			System.out.println("Receive ACK Number： " + ack);
 
-			UDT_Timer timer = timers.remove(ack);
-			
-			if (timer != null) {
-				timer.cancel();
+			boolean isAckNew = false;
+
+			while((!unAckedPackets.isEmpty()) && (unAckedPackets.firstKey() <= ack)) {
+				unAckedPackets.remove(unAckedPackets.firstKey());
+				isAckNew = true;
 			}
-			
-			while(!unAckedPackets.isEmpty()) {
-				int base = unAckedPackets.firstKey();
-				if(timers.containsKey(base)) {
-					break;
+
+			if (isAckNew) {
+				udt_timer.cancel();
+				if (!unAckedPackets.isEmpty()) {
+					TCP_PACKET basePacket = unAckedPackets.firstEntry().getValue();
+					udt_timer = new UDT_Timer();
+					udt_timer.schedule(new UDT_RetransTask(client, basePacket), 3000, 3000);
+				} else {
+					udt_timer = null;
 				}
-				unAckedPackets.remove(base);
 			}
 		}
 	}

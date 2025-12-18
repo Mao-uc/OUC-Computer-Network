@@ -17,12 +17,12 @@ public class CheckSum {
 		int Seq = Htmp.getTh_seq();
 		int Ack = Htmp.getTh_ack();
 
-		checkSum = (Seq >> 16) + (Seq & 0xffff) + (Ack >> 16) + (Ack & 0xffff);// + Htmp.getTh_sum();
+		checkSum = (Seq >>> 16) + (Seq & 0xffff) + (Ack >>> 16) + (Ack & 0xffff);// + Htmp.getTh_sum();
 		for (int i = 0; i < data.length; i++) {
-			checkSum += ((data[i] >> 16) + (data[i] & 0xffff));
+			checkSum += ((data[i] >>> 16) + (data[i] & 0xffff));
 		}
-		while ((checkSum >> 16) > 0) {
-			checkSum = (checkSum & 0xffff) + (checkSum >> 16);
+		while ((checkSum >>> 16) > 0) {
+			checkSum = (checkSum & 0xffff) + (checkSum >>> 16);
 		}
 		checkSum = ~checkSum;
 
