@@ -98,7 +98,6 @@ public class TCP_Sender extends TCP_Sender_ADT {
 			}else if(lastAck == ack) {
 				dupAckCount ++;
 				System.out.println("Tahoe Event: "+dupAckCount +" Duplicate ACKs.");
-			
 			}
 			
 			if(dupAckCount == 3) {
@@ -110,9 +109,9 @@ public class TCP_Sender extends TCP_Sender_ADT {
 				if (!unAckedPackets.isEmpty()) {
 					TCP_PACKET lostPacket = unAckedPackets.firstEntry().getValue();
 					udt_send(lostPacket);
-					udt_timer.cancel();
-					udt_timer = new UDT_Timer();
-					udt_timer.schedule(new TaskPacketsRetrans(client, lostPacket, this), 3000, 3000);
+//					udt_timer.cancel();
+//					udt_timer = new UDT_Timer();
+//					udt_timer.schedule(new TaskPacketsRetrans(client, lostPacket, this), 3000, 3000);
 				}
 				return;
 			}
