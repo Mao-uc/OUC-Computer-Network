@@ -23,7 +23,7 @@ public class TaskPacketsRetrans extends TimerTask{
 		senderClient.send(packet4Retrans);		
 		sender.ssthresh = Math.max((int)sender.windowSize / 2, 2);
 		sender.windowSize = 1.0;
-		System.out.println("Resetting cwnd = "+(int)sender.windowSize);
+		System.out.println("Tahoe Event: Timeout. Resetting cwnd = "+(int)sender.windowSize);
 		System.out.println("Tahoe Event: Multiplicative Decrease. Resetting ssthresh = "+sender.ssthresh);
 //		for (TCP_PACKET pkt : unAckedPackets) {
 //			System.out.println("Retransmit: " + pkt.getTcpH().getTh_seq());

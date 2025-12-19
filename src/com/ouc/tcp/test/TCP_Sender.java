@@ -92,29 +92,29 @@ public class TCP_Sender extends TCP_Sender_ADT {
 
 			//System.out.println("Receive ACK Number： " + ack);
 
-			if(lastAck < ack) {
-				lastAck = ack;
-				dupAckCount = 0;
-			}else if(lastAck == ack) {
-				dupAckCount ++;
-				System.out.println("Tahoe Event: "+dupAckCount +" Duplicate ACKs.");
-			}
-			
-			if(dupAckCount == 3) {
-				ssthresh = Math.max((int)windowSize / 2, 2);
-				windowSize=1.0;
-				System.out.println("Resetting cwnd = "+(int)windowSize);
-				System.out.println("Tahoe Event: Multiplicative Decrease. Resetting ssthresh = "+ssthresh);
-				// Fast Retransmit
-				if (!unAckedPackets.isEmpty()) {
-					TCP_PACKET lostPacket = unAckedPackets.firstEntry().getValue();
-					udt_send(lostPacket);
-//					udt_timer.cancel();
-//					udt_timer = new UDT_Timer();
-//					udt_timer.schedule(new TaskPacketsRetrans(client, lostPacket, this), 3000, 3000);
-				}
-				return;
-			}
+//			if(lastAck < ack) {
+//				lastAck = ack;
+//				dupAckCount = 0;
+//			}else if(lastAck == ack) {
+//				dupAckCount ++;
+//				System.out.println("Tahoe Event: "+dupAckCount +" Duplicate ACKs.");
+//			}
+//			
+//			if(dupAckCount == 3) {
+//				ssthresh = Math.max((int)windowSize / 2, 2);
+//				windowSize=1.0;
+//				System.out.println("Resetting cwnd = "+(int)windowSize);
+//				System.out.println("Tahoe Event: Multiplicative Decrease. Resetting ssthresh = "+ssthresh);
+//				// Fast Retransmit
+//				if (!unAckedPackets.isEmpty()) {
+//					TCP_PACKET lostPacket = unAckedPackets.firstEntry().getValue();
+//					udt_send(lostPacket);
+////					udt_timer.cancel();
+////					udt_timer = new UDT_Timer();
+////					udt_timer.schedule(new TaskPacketsRetrans(client, lostPacket, this), 3000, 3000);
+//				}
+//				return;
+//			}
 
 			boolean isAckNew = false;
 
