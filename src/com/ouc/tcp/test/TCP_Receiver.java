@@ -30,11 +30,6 @@ public class TCP_Receiver extends TCP_Receiver_ADT {
 
 			int sequence_cur = recvPack.getTcpH().getTh_seq();
 
-			tcpH.setTh_ack(sequence_cur);
-			ackPack = new TCP_PACKET(tcpH, tcpS, recvPack.getSourceAddr());
-			tcpH.setTh_sum(CheckSum.computeChkSum(ackPack));
-			reply(ackPack);
-
 			if (sequence_cur == sequence) {
 				dataQueue.add(recvPack.getTcpS().getData());
 				// expected sequence ++
@@ -49,6 +44,12 @@ public class TCP_Receiver extends TCP_Receiver_ADT {
 			} else if ((sequence_cur > sequence) && (!dataBuffer.containsKey(sequence_cur))) {
 				dataBuffer.put(sequence_cur, recvPack.getTcpS().getData());
 			}
+			
+			tcpH.setTh_ack(sequence-recvPack.getTcpS().getData().length);
+			tcpH.setTh_seq(sequence-recvPack.getTcpS().getData().length);
+			ackPack = new TCP_PACKET(tcpH, tcpS, recvPack.getSourceAddr());
+			tcpH.setTh_sum(CheckSum.computeChkSum(ackPack));
+			reply(ackPack);
 		}
 
 		// Deliver data

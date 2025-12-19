@@ -7,7 +7,6 @@ package com.ouc.tcp.test;
 import java.util.concurrent.ConcurrentSkipListMap;
 
 import com.ouc.tcp.client.TCP_Sender_ADT;
-import com.ouc.tcp.client.UDT_RetransTask;
 import com.ouc.tcp.client.UDT_Timer;
 import com.ouc.tcp.message.TCP_HEADER;
 import com.ouc.tcp.message.TCP_PACKET;
@@ -17,11 +16,15 @@ public class TCP_Sender extends TCP_Sender_ADT {
 
 	private TCP_PACKET tcpPack; // TCP packet to be sent
 
-	// SR needed
+	// TCP needed
 	private UDT_Timer udt_timer;
-	private int windowSize = 4;
+	public volatile double windowSize = 1.0;
+	public volatile int ssthresh = 16;
+	private int lastAck = -1;
+	private int dupAckCount = 0;
+	
 	private ConcurrentSkipListMap<Integer, TCP_PACKET> unAckedPackets = new ConcurrentSkipListMap<Integer, TCP_PACKET>();
-	private ConcurrentSkipListMap<Integer, UDT_Timer> timers = new ConcurrentSkipListMap<Integer, UDT_Timer>();
+	//private ConcurrentSkipListMap<Integer, UDT_Timer> timers = new ConcurrentSkipListMap<Integer, UDT_Timer>();
 	
 	/* Constructor */
 	public TCP_Sender() {
@@ -31,11 +34,11 @@ public class TCP_Sender extends TCP_Sender_ADT {
 
 	@Override
 	// Reliable sending (called by application layer): encapsulate application data,
-	// generate TCP packet; needs modification
+	// generate TCP packet
 	public void rdt_send(int dataIndex, int[] appData) {
 
 		// wait for spare window
-		while (unAckedPackets.size() >= windowSize);
+		while (unAckedPackets.size() >= (int)windowSize);
 
 		try {
 			TCP_HEADER newTcpH = tcpH.clone();
@@ -51,9 +54,10 @@ public class TCP_Sender extends TCP_Sender_ADT {
 			unAckedPackets.put(newTcpH.getTh_seq(),tcpPack);
 			udt_send(tcpPack);
 
-			udt_timer = new UDT_Timer();
-			udt_timer.schedule(new UDT_RetransTask(client, tcpPack), 3000, 3000);
-			timers.put(newTcpH.getTh_seq(), udt_timer);	
+			if(udt_timer==null) {
+				udt_timer = new UDT_Timer();
+				udt_timer.schedule(new TaskPacketsRetrans(client, tcpPack, this), 3000, 3000);
+			}
 
 		} catch (CloneNotSupportedException e) {
 			e.printStackTrace();
@@ -66,7 +70,7 @@ public class TCP_Sender extends TCP_Sender_ADT {
 	public void udt_send(TCP_PACKET stcpPack) {
 		// Set error control flag
 		tcpH.setTh_eflag((byte) 7);
-		// System.out.println("to send: "+stcpPack.getTcpH().getTh_seq());
+
 		// Send packet
 		client.send(stcpPack);
 	}
@@ -86,20 +90,60 @@ public class TCP_Sender extends TCP_Sender_ADT {
 
 			int ack = recvPack.getTcpH().getTh_ack();
 
-			System.out.println("Receive ACK Number： " + ack);
+			//System.out.println("Receive ACK Number： " + ack);
 
-			UDT_Timer timer = timers.remove(ack);
+			if(lastAck < ack) {
+				lastAck = ack;
+				dupAckCount = 0;
+			}else if(lastAck == ack) {
+				dupAckCount ++;
+				System.out.println("Tahoe Event: "+dupAckCount +" Duplicate ACKs.");
 			
-			if (timer != null) {
-				timer.cancel();
 			}
 			
-			while(!unAckedPackets.isEmpty()) {
-				int base = unAckedPackets.firstKey();
-				if(timers.containsKey(base)) {
-					break;
+			if(dupAckCount == 3) {
+				ssthresh = Math.max((int)windowSize / 2, 2);
+				windowSize=1.0;
+				System.out.print(" Resetting cwnd = "+(int)windowSize);
+				System.out.println("Tahoe Event: Multiplicative Decrease. Resetting ssthresh = "+ssthresh);
+				// Fast Retransmit
+				if (!unAckedPackets.isEmpty()) {
+					TCP_PACKET lostPacket = unAckedPackets.firstEntry().getValue();
+					udt_send(lostPacket);
+					udt_timer.cancel();
+					udt_timer = new UDT_Timer();
+					udt_timer.schedule(new TaskPacketsRetrans(client, lostPacket, this), 3000, 3000);
 				}
-				unAckedPackets.remove(base);
+				return;
+			}
+
+			boolean isAckNew = false;
+
+			while((!unAckedPackets.isEmpty()) && (unAckedPackets.firstKey() <= ack)) {
+				unAckedPackets.remove(unAckedPackets.firstKey());
+				isAckNew = true;
+			}
+
+			if (isAckNew) {
+				udt_timer.cancel();
+				if (!unAckedPackets.isEmpty()) {
+					TCP_PACKET basePacket = unAckedPackets.firstEntry().getValue();
+					udt_timer = new UDT_Timer();
+					udt_timer.schedule(new TaskPacketsRetrans(client, basePacket, this), 3000, 3000);
+				} else {
+					udt_timer = null;
+				}
+				if(windowSize < ssthresh) {
+					windowSize += 1.0;
+					System.out.println("Slow start, cwnd = " + (int)windowSize);
+				} else {
+					windowSize += 1.0 / (int)windowSize;
+					if (windowSize - (int)windowSize > 0.999) {
+						windowSize = Math.ceil(windowSize);
+					}
+					System.out.println("Congestion Avoidance, cwnd = " + (int)windowSize);
+				}
+				
 			}
 		}
 	}
