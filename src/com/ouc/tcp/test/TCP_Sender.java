@@ -103,7 +103,7 @@ public class TCP_Sender extends TCP_Sender_ADT {
 			if(dupAckCount == 3) {
 				ssthresh = Math.max((int)windowSize / 2, 2);
 				windowSize=1.0;
-				System.out.print(" Resetting cwnd = "+(int)windowSize);
+				System.out.println("Resetting cwnd = "+(int)windowSize);
 				System.out.println("Tahoe Event: Multiplicative Decrease. Resetting ssthresh = "+ssthresh);
 				// Fast Retransmit
 				if (!unAckedPackets.isEmpty()) {
