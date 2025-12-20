@@ -778,7 +778,7 @@ Receiver Perspective:
 
 ![image-20251214220303923](images/image-20251214220303923.png)
 
-Delay in sender transmission triggers timeout retransmission.
+LOSS in sender transmission triggers timeout retransmission.
 
 Sender Perspective:
 
@@ -1090,7 +1090,7 @@ Starting from when the sender sends the packet with sequence number 38101, the r
 
 ![image-20251220014850599](images/image-20251220014850599.png)
 
-Packet 11301 was lost, and other packets in that window are also NO ACK:
+Packet 38001 was lost, and other packets in that window are also NO ACK:
 
 ![image-20251220014953522](images/image-20251220014953522.png)
 
