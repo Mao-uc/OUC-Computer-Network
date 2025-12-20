@@ -6,7 +6,6 @@
 
 **Major:** `Computer Science and Technology (Sino-Foreign)`    **Grade:** `2023` 
 
-The code is available
 
 ------
 
