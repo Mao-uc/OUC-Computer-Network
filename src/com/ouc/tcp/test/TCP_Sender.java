@@ -92,29 +92,34 @@ public class TCP_Sender extends TCP_Sender_ADT {
 
 			//System.out.println("Receive ACK Number： " + ack);
 
-//			if(lastAck < ack) {
-//				lastAck = ack;
-//				dupAckCount = 0;
-//			}else if(lastAck == ack) {
-//				dupAckCount ++;
-//				System.out.println("Tahoe Event: "+dupAckCount +" Duplicate ACKs.");
-//			}
-//			
-//			if(dupAckCount == 3) {
-//				ssthresh = Math.max((int)windowSize / 2, 2);
-//				windowSize=1.0;
-//				System.out.println("Resetting cwnd = "+(int)windowSize);
-//				System.out.println("Tahoe Event: Multiplicative Decrease. Resetting ssthresh = "+ssthresh);
-//				// Fast Retransmit
-//				if (!unAckedPackets.isEmpty()) {
-//					TCP_PACKET lostPacket = unAckedPackets.firstEntry().getValue();
-//					udt_send(lostPacket);
-////					udt_timer.cancel();
-////					udt_timer = new UDT_Timer();
-////					udt_timer.schedule(new TaskPacketsRetrans(client, lostPacket, this), 3000, 3000);
-//				}
-//				return;
-//			}
+			if(lastAck < ack) {
+				if (dupAckCount>=3) {
+					windowSize=ssthresh;
+					System.out.println("Reno Event: Exit Fast Recovery. Resetting cwnd = "+(int)windowSize);
+				}
+				lastAck = ack;
+				dupAckCount = 0;
+			}else if(lastAck == ack) {
+				dupAckCount ++;
+				System.out.println("Reno Event: "+dupAckCount +" Duplicate ACKs.");
+			}
+			
+			if(dupAckCount == 3) {
+				ssthresh = Math.max((int)windowSize / 2, 2);
+				windowSize=ssthresh+3;
+				System.out.println("Reno Event: Multiplicative Decrease. Resetting ssthresh = "+ssthresh);
+				System.out.println("Reno Event: Fast Recovery. Resetting cwnd = "+(int)windowSize);
+				// Fast Retransmit
+				if (!unAckedPackets.isEmpty()) {
+					TCP_PACKET lostPacket = unAckedPackets.firstEntry().getValue();
+					udt_send(lostPacket);
+				}
+				return;
+			}
+			if(dupAckCount > 3) {
+				windowSize++;
+				System.out.println("Reno Event: New duplicate ACK. Increasing cwnd = "+(int)windowSize);
+			}
 
 			boolean isAckNew = false;
 
