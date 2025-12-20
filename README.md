@@ -128,17 +128,17 @@ For RDT 2.0, the sender cannot determine if an ACK/NAK is corrupted. Therefore, 
 
 The log file of the run results is shown above. There are a total of 1008 lines, with a success rate of 99.21% and a total of 8 exceptions.
 
-![image-20251213030002168](C:\Users\33395\Desktop\计算机网络\images_md\image-20251213030002168.png)
+![image-20251213030002168](images/image-20251213030002168.png)
 
 There is only one type of error: bit errors occur in packets sent from the sender to the receiver.
 
 Sender Perspective (WRONG):
 
-![image-20251213030250376](C:\Users\33395\Desktop\计算机网络\images_md\image-20251213030250376.png)
+![image-20251213030250376](images/image-20251213030250376.png)
 
 Receiver Perspective:
 
-![image-20251213030328791](C:\Users\33395\Desktop\计算机网络\images_md\image-20251213030328791.png)
+![image-20251213030328791](images/image-20251213030328791.png)
 
 It can be seen that the receiver informs the sender that the received packet has a bit error by returning an ACK with `seq=-1` (i.e., a NAK). Consequently, the sender displays `WRONG NO_ACK`, then retransmits, and subsequently receives the ACK. This concludes the implementation of RDT 2.0.
 
@@ -224,7 +224,7 @@ RDT 2.2 requires the receiver to record the sequence number of the last successf
 
 The log file of the run results is shown below. There are a total of 1008 lines, with a success rate of 98.23% and a total of 18 exceptions.
 
-![image-20251213115928864](C:\Users\33395\Desktop\计算机网络\images_md\image-20251213115928864.png)
+![image-20251213115928864](images/image-20251213115928864.png)
 
 There are two types of errors.
 
@@ -232,11 +232,11 @@ There are two types of errors.
 
 Sender Perspective (WRONG):
 
-![image-20251213120137923](C:\Users\33395\Desktop\计算机网络\images_md\image-20251213120137923.png)
+![image-20251213120137923](images/image-20251213120137923.png)
 
 Receiver Perspective:
 
-![image-20251213120226820](C:\Users\33395\Desktop\计算机网络\images_md\image-20251213120226820.png)
+![image-20251213120226820](images/image-20251213120226820.png)
 
 As seen, due to a bit error, the receiver retransmitted the last successfully received ACK, i.e., `ACK_ack: 5801`.
 
@@ -244,11 +244,11 @@ As seen, due to a bit error, the receiver retransmitted the last successfully re
 
 Sender Perspective:
 
-![image-20251213120612754](C:\Users\33395\Desktop\计算机网络\images_md\image-20251213120612754.png)
+![image-20251213120612754](images/image-20251213120612754.png)
 
 Receiver Perspective (WRONG):
 
-![image-20251213120728414](C:\Users\33395\Desktop\计算机网络\images_md\image-20251213120728414.png)
+![image-20251213120728414](images/image-20251213120728414.png)
 
 It can be seen that the sender retransmitted the Packet because it received an erroneous ACK.
 
@@ -256,11 +256,11 @@ Additionally, a coincidence occurred where both the packet sent by the sender an
 
 Sender Perspective (WRONG):
 
-![image-20251213122428285](C:\Users\33395\Desktop\计算机网络\images_md\image-20251213122428285.png)
+![image-20251213122428285](images/image-20251213122428285.png)
 
 Receiver Perspective (WRONG):
 
-![image-20251213122502211](C:\Users\33395\Desktop\计算机网络\images_md\image-20251213122502211.png)
+![image-20251213122502211](images/image-20251213122502211.png)
 
 Because the sent packet had a bit error, the ACK returned by the receiver should have been 8401, but this ACK also had a bit error. Consequently, the receiver retransmitted the packet for the next sequence number after that ACK, i.e., 8501 (Note: In standard RDT logic, if the ACK is corrupted, the sender retransmits. The description here reflects the observation from the provided logs).
 
@@ -345,25 +345,25 @@ RDT 3.0 uses the timeout retransmission mechanism to solve bit error, packet los
 
 The log file of the run results is shown below. There are a total of 1019 lines, with a success rate of 98.14% and a total of 19 exceptions.
 
-![image-20251214150749566](C:\Users\33395\Desktop\计算机网络\images_md\image-20251214150749566.png)
+![image-20251214150749566](images/image-20251214150749566.png)
 
 ##### *a) Packet/ACK Bit Error*
 
 Sender Perspective (WRONG):
 
-![image-20251214150845674](C:\Users\33395\Desktop\计算机网络\images_md\image-20251214150845674.png)
+![image-20251214150845674](images/image-20251214150845674.png)
 
 Receiver Perspective:
 
-![image-20251214150929023](C:\Users\33395\Desktop\计算机网络\images_md\image-20251214150929023.png)
+![image-20251214150929023](images/image-20251214150929023.png)
 
 Sender Perspective:
 
-![image-20251214151010898](C:\Users\33395\Desktop\计算机网络\images_md\image-20251214151010898.png)
+![image-20251214151010898](images/image-20251214151010898.png)
 
 Receiver Perspective (WRONG):
 
-![image-20251214150942489](C:\Users\33395\Desktop\计算机网络\images_md\image-20251214150942489.png)
+![image-20251214150942489](images/image-20251214150942489.png)
 
 For bit error problems, both Packet and ACK bit errors result in the sender receiving an ACK that does not match the expected sequence number. These are ignored, thereby triggering timeout retransmission.
 
@@ -371,19 +371,19 @@ For bit error problems, both Packet and ACK bit errors result in the sender rece
 
 Sender Perspective (LOSS):
 
-![image-20251214150902453](C:\Users\33395\Desktop\计算机网络\images_md\image-20251214150902453.png)
+![image-20251214150902453](images/image-20251214150902453.png)
 
 Receiver Perspective:
 
-![image-20251214151115666](C:\Users\33395\Desktop\计算机网络\images_md\image-20251214151115666.png)
+![image-20251214151115666](images/image-20251214151115666.png)
 
 Sender Perspective:
 
-![image-20251214151834895](C:\Users\33395\Desktop\计算机网络\images_md\image-20251214151834895.png)
+![image-20251214151834895](images/image-20251214151834895.png)
 
 Receiver Perspective (LOSS):
 
-![image-20251214151205664](C:\Users\33395\Desktop\计算机网络\images_md\image-20251214151205664.png)
+![image-20251214151205664](images/image-20251214151205664.png)
 
 Due to packet loss, the receiver does not respond, and the sender does not receive an ACK, thus triggering timeout retransmission. The same applies to ACK loss.
 
@@ -391,21 +391,21 @@ Due to packet loss, the receiver does not respond, and the sender does not recei
 
 Sender Perspective (DELAY):
 
-![image-20251214152022722](C:\Users\33395\Desktop\计算机网络\images_md\image-20251214152022722.png)
+![image-20251214152022722](images/image-20251214152022722.png)
 
 Receiver Perspective:
 
-![image-20251214152114820](C:\Users\33395\Desktop\计算机网络\images_md\image-20251214152114820.png)
+![image-20251214152114820](images/image-20251214152114820.png)
 
-![image-20251214152138981](C:\Users\33395\Desktop\计算机网络\images_md\image-20251214152138981.png)
+![image-20251214152138981](images/image-20251214152138981.png)
 
 Sender Perspective:
 
-![image-20251214152246176](C:\Users\33395\Desktop\计算机网络\images_md\image-20251214152246176.png)
+![image-20251214152246176](images/image-20251214152246176.png)
 
 Receiver Perspective (DELAY):
 
-![image-20251214152214769](C:\Users\33395\Desktop\计算机网络\images_md\image-20251214152214769.png)
+![image-20251214152214769](images/image-20251214152214769.png)
 
 For delay problems, since RDT 3.0 compares the currently expected sequence number with the received ACK, any ACK arriving late due to delay is ignored if its sequence number does not match the current one; if it matches, the expected sequence number is updated, thus ignoring the ACK returned by the retransmitted packet.
 
@@ -567,7 +567,7 @@ The Receiver needs to record the expected sequence number (must be sequential, f
 
 The log file of the run results is shown below. There are a total of 1040 lines, with a success rate of 95.48% and a total of 40 exceptions.
 
-![image-20251214152936627](C:\Users\33395\Desktop\计算机网络\images_md\image-20251214152936627.png)
+![image-20251214152936627](images/image-20251214152936627.png)
 
 Because GBN has extremely high requirements for packet order, any bit error, packet loss, or delay during transmission causes the receiver to reject out-of-order packets and continue replying with the ACK of the currently confirmed maximum sequence number. Therefore, I analyze the Log file from both receiver and sender perspectives.
 
@@ -575,19 +575,19 @@ Because GBN has extremely high requirements for packet order, any bit error, pac
 
 Sender Perspective:
 
-![image-20251214154200006](C:\Users\33395\Desktop\计算机网络\images_md\image-20251214154200006.png)
+![image-20251214154200006](images/image-20251214154200006.png)
 
-![image-20251214154229442](C:\Users\33395\Desktop\计算机网络\images_md\image-20251214154229442.png)
+![image-20251214154229442](images/image-20251214154229442.png)
 
-![image-20251214154127319](C:\Users\33395\Desktop\计算机网络\images_md\image-20251214154127319.png)
+![image-20251214154127319](images/image-20251214154127319.png)
 
 Receiver Perspective:
 
-![image-20251214154331135](C:\Users\33395\Desktop\计算机网络\images_md\image-20251214154331135.png)
+![image-20251214154331135](images/image-20251214154331135.png)
 
-![image-20251214154404327](C:\Users\33395\Desktop\计算机网络\images_md\image-20251214154404327.png)
+![image-20251214154404327](images/image-20251214154404327.png)
 
-![image-20251214154537405](C:\Users\33395\Desktop\计算机网络\images_md\image-20251214154537405.png)
+![image-20251214154537405](images/image-20251214154537405.png)
 
 As shown in the figures, sender bit error, loss, or delay caused the packets to arrive out of order at the receiver (or effectively appear so due to loss/corruption), causing the sender to continuously reply with the ACK of the currently confirmed maximum sequence number. Then, GBN timeout retransmission was triggered, retransmitting all packets in `unAckedPackets`.
 
@@ -597,19 +597,19 @@ Furthermore, for bit errors, the sender will receive the erroneous packet and re
 
 Sender Perspective:
 
-![image-20251214160007143](C:\Users\33395\Desktop\计算机网络\images_md\image-20251214160007143.png)
+![image-20251214160007143](images/image-20251214160007143.png)
 
-![image-20251214160032261](C:\Users\33395\Desktop\计算机网络\images_md\image-20251214160032261.png)
+![image-20251214160032261](images/image-20251214160032261.png)
 
-![image-20251214160048570](C:\Users\33395\Desktop\计算机网络\images_md\image-20251214160048570.png)
+![image-20251214160048570](images/image-20251214160048570.png)
 
 Receiver Perspective:
 
-![image-20251214155938505](C:\Users\33395\Desktop\计算机网络\images_md\image-20251214155938505.png)
+![image-20251214155938505](images/image-20251214155938505.png)
 
-![image-20251214155908205](C:\Users\33395\Desktop\计算机网络\images_md\image-20251214155908205.png)
+![image-20251214155908205](images/image-20251214155908205.png)
 
-![image-20251214155918625](C:\Users\33395\Desktop\计算机网络\images_md\image-20251214155918625.png)
+![image-20251214155918625](images/image-20251214155918625.png)
 
 Receiver bit error/loss/delay only affects whether the ACK for a certain packet is received by the sender; it does not affect the transmission of subsequent packets because the receiver has received that ACK (internally/logically processed) and updated the expected sequence number (Cumulative ACK).
 
@@ -757,39 +757,39 @@ Since the amount of data in the buffer varies, the data length in `dataQueue` do
 
 The log file of the run results is shown below. There are a total of 1019 lines, with a success rate of 98.14% and a total of 19 exceptions.
 
-![image-20251214202638102](C:\Users\33395\Desktop\计算机网络\images_md\image-20251214202638102.png)
+![image-20251214202638102](images/image-20251214202638102.png)
 
 ##### *a) Sender Bit Error/Loss/Delay*
 
 Sender Perspective:
 
-![image-20251214214333620](C:\Users\33395\Desktop\计算机网络\images_md\image-20251214214333620.png)
+![image-20251214214333620](images/image-20251214214333620.png)
 
 Receiver Perspective:
 
-![image-20251214214444257](C:\Users\33395\Desktop\计算机网络\images_md\image-20251214214444257.png)
+![image-20251214214444257](images/image-20251214214444257.png)
 
 For bit errors occurring during transmission from the sender, the receiver ignores the packet and makes no response, thus triggering timeout retransmission. As seen in the figure, packet 58201 arrived out of order at the sender.
 
 Sender Perspective:
 
-![image-20251214220157963](C:\Users\33395\Desktop\计算机网络\images_md\image-20251214220157963.png)
+![image-20251214220157963](images/image-20251214220157963.png)
 
 Receiver Perspective:
 
-![image-20251214220303923](C:\Users\33395\Desktop\计算机网络\images_md\image-20251214220303923.png)
+![image-20251214220303923](images/image-20251214220303923.png)
 
 Delay in sender transmission triggers timeout retransmission.
 
 Sender Perspective:
 
-![image-20251214214624701](C:\Users\33395\Desktop\计算机网络\images_md\image-20251214214624701.png)
+![image-20251214214624701](images/image-20251214214624701.png)
 
 Receiver Perspective:
 
-![image-20251214214707021](C:\Users\33395\Desktop\计算机网络\images_md\image-20251214214707021.png)
+![image-20251214214707021](images/image-20251214214707021.png)
 
-![image-20251214214855696](C:\Users\33395\Desktop\计算机网络\images_md\image-20251214214855696.png)
+![image-20251214214855696](images/image-20251214214855696.png)
 
 Delayed packets also trigger timeout retransmission. However, upon subsequently receiving the delayed packet, the receiver replies again with an ACK of its sequence number, like ACK 41901 in the figure, though this retransmitted ACK has no effect on the sender.
 
@@ -797,19 +797,19 @@ Delayed packets also trigger timeout retransmission. However, upon subsequently 
 
 Sender Perspective:
 
-![image-20251214221042424](C:\Users\33395\Desktop\计算机网络\images_md\image-20251214221042424.png)
+![image-20251214221042424](images/image-20251214221042424.png)
 
-![image-20251214221101993](C:\Users\33395\Desktop\计算机网络\images_md\image-20251214221101993.png)
+![image-20251214221101993](images/image-20251214221101993.png)
 
-![image-20251214221119928](C:\Users\33395\Desktop\计算机网络\images_md\image-20251214221119928.png)
+![image-20251214221119928](images/image-20251214221119928.png)
 
 Receiver Perspective:
 
-![image-20251214220938217](C:\Users\33395\Desktop\计算机网络\images_md\image-20251214220938217.png)
+![image-20251214220938217](images/image-20251214220938217.png)
 
-![image-20251214220918460](C:\Users\33395\Desktop\计算机网络\images_md\image-20251214220918460.png)
+![image-20251214220918460](images/image-20251214220918460.png)
 
-![image-20251214221004560](C:\Users\33395\Desktop\计算机网络\images_md\image-20251214221004560.png)
+![image-20251214221004560](images/image-20251214221004560.png)
 
 For receiver transmission ACK bit errors/loss/delays, although the receiver successfully received the packet sent by the sender, the sender does not know this, so it retransmits the packet.
 
@@ -904,19 +904,19 @@ In the subsequent analysis of the Log file, I will treat the ACK number replied 
 
 The log file of the run results is shown below. There are a total of 1008 lines, with a success rate of 96.23% and a total of 38 exceptions.
 
-![image-20251218185007251](C:\Users\33395\Desktop\计算机网络\images_md\image-20251218185007251.png)
+![image-20251218185007251](images/image-20251218185007251.png)
 
 For all sender exceptions (bit error/loss/delay), subsequent packets in the sending window will show NO_ACK. This is because the receiver persistently replies with the sequence number of the expected Packet (which is the sequence number of the exception packet). Although NO_ACK is displayed, as long as subsequent packets transmit without exception, they will be buffered by the receiver, so it is not a major issue. Then, timeout retransmission is triggered, and operations like window movement are executed upon receiving the ACK. Sender exceptions and processing are shown below.
 
-![image-20251218190108801](C:\Users\33395\Desktop\计算机网络\images_md\image-20251218190108801.png)
+![image-20251218190108801](images/image-20251218190108801.png)
 
-![image-20251218193110563](C:\Users\33395\Desktop\计算机网络\images_md\image-20251218193110563.png)
+![image-20251218193110563](images/image-20251218193110563.png)
 
-![image-20251218193132792](C:\Users\33395\Desktop\计算机网络\images_md\image-20251218193132792.png)
+![image-20251218193132792](images/image-20251218193132792.png)
 
 The sender window size is 4. Here, a suspicious point is easily found: the packet *before* the retransmitted exception packet is actually ACKed, not NO_ACK. Looking from the receiver side, it seems the ACK for that packet was affected by the ACK of the retransmitted packet, making that packet appear ACKed.
 
-![image-20251218194436088](C:\Users\33395\Desktop\计算机网络\images_md\image-20251218194436088.png)
+![image-20251218194436088](images/image-20251218194436088.png)
 
 As seen in the figure, at 14:31:56:092, the receiver replied with `ACK_ack 101` for packet 501 (telling the sender the expected Packet sequence is 201). Then, at 14:31:59:037, for the retransmission of packet 201, it replied with `ACK_ack 501` (telling the sender the expected Packet sequence is 601). Therefore, the log shows no problem with the ACKs sent back by the receiver. The problem likely lies in the ACK determination mechanism of the sender's log file. This is slightly abnormal, but after asking other students, I found everyone encountered this issue, so I did not pursue it further, as this anomaly does not affect code execution.
 
@@ -924,15 +924,15 @@ For receiver transmission ACK exceptions (bit error/loss/delay), due to the cumu
 
 Receiver Perspective:
 
-![image-20251219090808783](C:\Users\33395\Desktop\计算机网络\images_md\image-20251219090808783.png)
+![image-20251219090808783](images/image-20251219090808783.png)
 
-![image-20251219090820688](C:\Users\33395\Desktop\计算机网络\images_md\image-20251219090820688.png)
+![image-20251219090820688](images/image-20251219090820688.png)
 
-![image-20251219090838167](C:\Users\33395\Desktop\计算机网络\images_md\image-20251219090838167.png)
+![image-20251219090838167](images/image-20251219090838167.png)
 
 Sender Perspective:
 
-![image-20251219091444921](C:\Users\33395\Desktop\计算机网络\images_md\image-20251219091444921.png)
+![image-20251219091444921](images/image-20251219091444921.png)
 
 As seen in the figure, for NO_ACK packets, since subsequent Packets received ACKs, the sender will no longer process them via timeout retransmission but will skip them directly and move the window.
 
@@ -1067,17 +1067,17 @@ In the code, I added prints for various `cwnd` states, so I will analyze TCP Tah
 
 ##### *a) Slow Start*
 
-![image-20251220014313784](C:\Users\33395\Desktop\计算机网络\images_md\image-20251220014313784.png)
+![image-20251220014313784](images/image-20251220014313784.png)
 
 As seen from the terminal output, before `cwnd` capacity reaches `ssthresh`, after three RTT rounds, `cwnd` size increases from 1 to 2, then to 4, exhibiting exponential growth.
 
 ##### *b) Congestion Avoidance*
 
-![image-20251220014407520](C:\Users\33395\Desktop\计算机网络\images_md\image-20251220014407520.png)
+![image-20251220014407520](images/image-20251220014407520.png)
 
 As shown in the figure, after `cwnd` capacity reaches `ssthresh`, the capacity increases additively (linearly), increasing by only 1 per RTT round. Only after ending an RTT round (i.e., sending non-duplicate packets and receiving corresponding ACKs `cwnd` capacity times) does `cwnd` capacity become 17, as shown below:
 
-![image-20251220014443313](C:\Users\33395\Desktop\计算机网络\images_md\image-20251220014443313.png)
+![image-20251220014443313](images/image-20251220014443313.png)
 
 Thus, Congestion Avoidance is implemented.
 
@@ -1085,15 +1085,15 @@ Thus, Congestion Avoidance is implemented.
 
 Since TCP Tahoe includes Fast Retransmit, the time required to trigger Fast Retransmit and receive ACKs is far less than that for timeout retransmission. Therefore, I decided to **comment out the original TCP Tahoe Fast Retransmit code** to test timeout retransmission.
 
-![image-20251220014720837](C:\Users\33395\Desktop\计算机网络\images_md\image-20251220014720837.png)
+![image-20251220014720837](images/image-20251220014720837.png)
 
 Starting from when the sender sends the packet with sequence number 38101, the receiver replies with an abnormal ACK 37901 (expected 38001), indicating that packet 38001 is abnormal. Judging from the log file, this is indeed the case:
 
-![image-20251220014850599](C:\Users\33395\Desktop\计算机网络\images_md\image-20251220014850599.png)
+![image-20251220014850599](images/image-20251220014850599.png)
 
 Packet 11301 was lost, and other packets in that window are also NO ACK:
 
-![image-20251220014953522](C:\Users\33395\Desktop\计算机网络\images_md\image-20251220014953522.png)
+![image-20251220014953522](images/image-20251220014953522.png)
 
 After 3 seconds, the sender's timer triggers timeout retransmission, sets `cwnd` capacity to 1, performs multiplicative decrease on `ssthresh` (originally 15, rounded down to 7), and subsequently, `cwnd` begins slow start, restoring normality.
 
@@ -1151,15 +1151,15 @@ Thus, the entry, inflation during, and exit of Fast Recovery are implemented, ac
 
 ##### *a) Fast Retransmission*
 
-![image-20251220143856343](C:\Users\33395\Desktop\计算机网络\images_md\image-20251220143856343.png)
+![image-20251220143856343](images/image-20251220143856343.png)
 
 When the sender receives three duplicate ACKs, Fast Retransmit is triggered. As shown, the packet with sequence number 56701 is fast retransmitted.
 
-![image-20251220144016202](C:\Users\33395\Desktop\计算机网络\images_md\image-20251220144016202.png)
+![image-20251220144016202](images/image-20251220144016202.png)
 
 The sender retransmits the expected packet, then enters Fast Recovery state.
 
-![image-20251220144445052](C:\Users\33395\Desktop\计算机网络\images_md\image-20251220144445052.png)
+![image-20251220144445052](images/image-20251220144445052.png)
 
 Because transmission speed is fast, the sender immediately received a new ACK, causing it to exit Fast Recovery immediately; it was very brief.
 
@@ -1167,37 +1167,37 @@ Because transmission speed is fast, the sender immediately received a new ACK, c
 
 To thoroughly test the Fast Recovery state, I ran the program multiple times until encountering a situation where the fast retransmitted packet also failed. In this case, Fast Recovery can only be exited via timeout retransmission.
 
-![image-20251220141844188](C:\Users\33395\Desktop\计算机网络\images_md\image-20251220141844188.png)
+![image-20251220141844188](images/image-20251220141844188.png)
 
-![image-20251220142310486](C:\Users\33395\Desktop\计算机网络\images_md\image-20251220142310486.png)
+![image-20251220142310486](images/image-20251220142310486.png)
 
 As shown, packet 70601 had a bit error. After the sender received three duplicate ACKs for 70501 (expected 70601), timeout retransmission was triggered, but the retransmitted packet 70601 also had a bit error.
 
-![image-20251220142450418](C:\Users\33395\Desktop\计算机网络\images_md\image-20251220142450418.png)
+![image-20251220142450418](images/image-20251220142450418.png)
 
 This caused the sender to continuously receive ACKs for sequence number 70501 (expected 70601) for the next 3 seconds (timer triggers timeout retransmission after 3 seconds), and `cwnd` capacity kept increasing.
 
-![image-20251220142533502](C:\Users\33395\Desktop\计算机网络\images_md\image-20251220142533502.png)
+![image-20251220142533502](images/image-20251220142533502.png)
 
 Eventually, `cwnd` size increased to a staggering 287. Then, at this moment, timeout retransmission was triggered, retransmitting the previously abnormal fast retransmitted packet. Thereby, it exited Fast Recovery state and entered Slow Start.
 
-![image-20251220142915090](C:\Users\33395\Desktop\计算机网络\images_md\image-20251220142915090.png)
+![image-20251220142915090](images/image-20251220142915090.png)
 
-![image-20251220143114994](C:\Users\33395\Desktop\计算机网络\images_md\image-20251220143114994.png)
+![image-20251220143114994](images/image-20251220143114994.png)
 
 During Fast Recovery, if the ACK replied by the receiver is abnormal, the sender takes no action, i.e., does not increase `cwnd` capacity, as shown above.
 
 Due to fast transmission speed, `cwnd` capacity usually has surplus when just entering Fast Recovery and is basically unaffected unless `cwnd` capacity runs out. This would cause the program to block for a while, only exiting blocking via waiting for timeout retransmission. During my multiple test runs, I basically did not encounter program blocking due to insufficient `cwnd` capacity during Fast Recovery.
 
-![image-20251220143350057](C:\Users\33395\Desktop\计算机网络\images_md\image-20251220143350057.png)
+![image-20251220143350057](images/image-20251220143350057.png)
 
-![image-20251220143414765](C:\Users\33395\Desktop\计算机网络\images_md\image-20251220143414765.png)
+![image-20251220143414765](images/image-20251220143414765.png)
 
-![image-20251220143433809](C:\Users\33395\Desktop\计算机网络\images_md\image-20251220143433809.png)
+![image-20251220143433809](images/image-20251220143433809.png)
 
 However, if the Packet sent by the sender is abnormal, it can only trigger timeout retransmission sequentially to handle the abnormal packet. When the first fast retransmitted abnormal packet triggers timeout retransmission, the program exits Fast Recovery state and enters Slow Start. At this time, `cwnd` capacity is set to 1, so no new Packets will be sent.
 
-![image-20251220142741516](C:\Users\33395\Desktop\计算机网络\images_md\image-20251220142741516.png)
+![image-20251220142741516](images/image-20251220142741516.png)
 
 So, for abnormal packets transmitted by the sender during Fast Recovery, they will not trigger Fast Retransmit (cannot receive three duplicate ACKs). They can only wait one by one for this single timer to refresh and trigger timeout retransmission. Finally, only after each abnormal packet is processed via timeout retransmission does `cwnd` have capacity, allowing sending to continue.
 
@@ -1213,7 +1213,7 @@ Thus, I have implemented Fast Retransmission and Fast Recovery, implementing TCP
 
 In the GBN section, the ACK replied by the receiver is the ACK of the maximum sequence number of the packet currently received. However, TCP generally replies with the expected ACK, i.e., the ACK of the sequence number of the packet not yet received. This causes the cumulative acknowledgment logic of the two to differ.
 
-![image-20251220152550011](C:\Users\33395\Desktop\计算机网络\images_md\image-20251220152550011.png)
+![image-20251220152550011](images/image-20251220152550011.png)
 
 The Log file, after testing, is quite strict regarding ACK sequence numbers. If the sequence number of the replied ACK is different from the sent Packet, a complete NO_ACK situation appears, as shown above. Therefore, the problem appeared where GBN's cumulative acknowledgment Log file display is normal while TCP's is abnormal (the original log logic adapts to GBN). I had to make TCP reply with the ACK of the sequence number preceding the expected sequence number.
 
@@ -1235,7 +1235,7 @@ I believe there are three solutions:
 
 Similarly, the Log file shows an anomaly, as shown below.
 
-![image-20251220152845085](C:\Users\33395\Desktop\计算机网络\images_md\image-20251220152845085.png)
+![image-20251220152845085](images/image-20251220152845085.png)
 
 Before the fast retransmission of packet 27501, theoretically, packet 27801 should only receive ACKs for sequence number 27401 (expected 27501), so it should not be ACKed. Obviously, the Log file display is abnormal.
 
