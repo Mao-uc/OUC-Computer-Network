@@ -53,7 +53,7 @@ public class TCP_Sender extends TCP_Sender_ADT {
 			// Sender has one timer for the oldest unackedpacket
 			if(udt_timer==null) {
 				udt_timer = new UDT_Timer();
-				udt_timer.schedule(new UDT_RetransTask(client, tcpPack), 3000, 3000);
+				udt_timer.schedule(new TaskPacketsRetrans(client, tcpPack), 3000, 3000);
 			}
 		} catch (CloneNotSupportedException e) {
 			e.printStackTrace();
