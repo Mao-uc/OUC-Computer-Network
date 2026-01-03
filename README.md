@@ -454,7 +454,7 @@ public void rdt_send(int dataIndex, int[] appData) {
         // Sender has one timer for the oldest unackedpacket
         if(udt_timer==null) {
             udt_timer = new UDT_Timer();
-            udt_timer.schedule(new UDT_RetransTask(client, tcpPack), 3000, 3000);
+            udt_timer.schedule(new TaskPacketsRetrans(client, unAckedPackets), 3000, 3000);
         }
     } catch (CloneNotSupportedException e) {
         e.printStackTrace();
